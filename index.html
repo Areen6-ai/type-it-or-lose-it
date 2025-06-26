@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Type It or Lose It 💥⌨️</title>
+    <link rel="icon" type="image/jpeg" href="icon.png">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --dark: #292F36;
+            --light: #F7FFF7;
+            --accent: #FFE66D;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(-45deg, #FF6B6B, #4ECDC4, #FFE66D, #6BFF6B);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Page Container */
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* Intro Page */
+        #intro-page {
+            z-index: 10;
+        }
+        
+        .intro-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            border: 3px solid var(--accent);
+        }
+        
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-shadow: 3px 3px 0 var(--accent);
+            font-size: 2rem;
+        }
+        
+        .instructions {
+            text-align: left;
+            margin: 1.5rem 0;
+            padding: 0 1rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.8rem;
+            list-style-type: '👉 ';
+        }
+        
+        .credits {
+            margin-top: 2rem;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-family: 'Comic Neue', cursive;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Game Page (initially hidden) */
+        #game-page {
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Game Page Styles */
+        .emoji-float {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 5s infinite ease-in-out;
+            opacity: 0.7;
+            z-index: 0;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+        }
+        
+        #game-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(5px);
+            border: 3px solid var(--accent);
+        }
+        
+        .difficulty-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 1rem 0;
+        }
+        
+        .difficulty-btn {
+            background: var(--secondary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-family: 'Comic Neue', cursive;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .difficulty-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        #word-display {
+            font-size: 3rem;
+            margin: 2rem 0;
+            font-weight: bold;
+            color: var(--dark);
+            min-height: 4rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #input-field {
+            width: 80%;
+            padding: 1rem;
+            font-size: 1.5rem;
+            border: 3px dashed var(--secondary);
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Comic Neue', cursive;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        #timer-container {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        #timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--primary);
+            transition: width 0.1s linear;
+        }
+        
+        #stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+        }
+        
+        .stat {
+            background: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        #explosion {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10rem;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.5s;
+        }
+        
+        /* Game Over Message Styles */
+        .game-over-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 200;
+            display: none;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .game-over-message button {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Comic Neue', cursive;
+        }
+        
+        @media (max-width: 600px) {
+            #word-display {
+                font-size: 2rem;
+            }
+            
+            #input-field {
+                width: 90%;
+                font-size: 1.2rem;
+            }
+            
+            .game-over-message {
+                width: 90%;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating emojis background -->
+    <div class="emoji-float" style="left: 10%; top: 20%;">💥</div>
+    <div class="emoji-float" style="left: 80%; top: 30%;">⌨️</div>
+    <div class="emoji-float" style="left: 30%; top: 70%;">🔥</div>
+    <div class="emoji-float" style="left: 70%; top: 80%;">🚀</div>
+    
+    <!-- Intro Page -->
+    <div class="page" id="intro-page">
+        <div class="intro-container">
+            <h1>TYPE IT OR LOSE IT</h1>
+            <p>A fast-paced typing game where words explode!</p>
+            
+            <div class="instructions">
+                <h3>How to Play:</h3>
+                <ul>
+                    <li>Type the word before time runs out</li>
+                    <li>Each correct word increases your streak</li>
+                    <li>The game gets faster as you progress</li>
+                    <li>If you're too slow... BOOM! 💥</li>
+                </ul>
+            </div>
+            
+            <button id="start-game-btn" class="btn">START GAME</button>
+            
+            <div class="credits">
+                <p>Created with ❤️ by Areen Murtaza</p>
+                <p>This Game is for practicing your typing skills in a playful way and i'm just experimenting my creativity🥰</p><br>
+                <p>© 2025- All rights reserved</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Game Page -->
+    <div class="page" id="game-page">
+        <div id="game-container">
+            <!-- Game content will be inserted here by JavaScript -->
+        </div>
+    </div>
+    
+    <div id="explosion">💥</div>
+    
+    <!-- Game Over Message -->
+    <div class="game-over-message" id="game-over-message">
+        <div>GAME OVER!</div>
+        <div>Your streak: <span id="final-streak">0</span></div>
+        <button id="play-again-btn" class="btn">PLAY AGAIN</button>
+    </div>
+    
+    <script>
+        // ======================
+        // PAGE TRANSITION LOGIC
+        // ======================
+        document.getElementById('start-game-btn').addEventListener('click', function() {
+            // Hide intro page
+            document.getElementById('intro-page').style.opacity = '0';
+            document.getElementById('intro-page').style.pointerEvents = 'none';
+            
+            // Show game page
+            document.getElementById('game-page').style.opacity = '1';
+            document.getElementById('game-page').style.pointerEvents = 'all';
+            
+            // Initialize game
+            initializeGame();
+        });
+        
+        // ======================
+        // GAME IMPLEMENTATION
+        // ======================
+        function initializeGame() {
+            // Game configuration
+            const config = {
+                easy: { time: 7, words: ["CAT", "DOG", "SUN", "HAT", "CAR", "JAM", "VAN", "KEY", "EAR", "OWL", "MAT"] },
+                medium: { time: 5, words: ["Banana", "ROCKET", "Jungle", "PIZZA", "Dragon", "COAT", "jungle"] },
+                hard: { time: 3, words: ["JAVASCRIPT", "ADVENTURE", "KEYBOARD", "EXPLOSION", "CHALLENGE", "UMBERALLA", "PLEASE!", "GO AWAY"] }
+            };
+            
+            // Game state
+            let currentWord = "";
+            let timeLeft = 0;
+            let timer;
+            let streak = 0;
+            let highScore = localStorage.getItem('highScore') || 0;
+            let difficulty = "easy";
+            let gameActive = false;
+            
+            // Create game HTML
+            document.getElementById('game-container').innerHTML = `
+                <h1>💥 TYPE IT OR LOSE IT 💥</h1>
+                <p>Type the words before they explode!</p>
+                
+                <div class="difficulty-btns">
+                    <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+                    <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+                    <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+                </div>
+                
+                <div id="word-display">Ready?</div>
+                <input type="text" id="input-field" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here...">
+                
+                <div id="timer-container">
+                    <div id="timer-bar"></div>
+                </div>
+                
+                <div id="stats">
+                    <div class="stat">Streak: <span id="streak">0</span></div>
+                    <div class="stat">High Score: <span id="high-score">${highScore}</span></div>
+                </div>
+                
+                <button id="game-control-btn" class="btn">START GAME</button>
+                <button id="back-to-menu" class="btn" style="background: var(--secondary); margin-top: 10px;">BACK TO MENU</button>
+                
+                <div id="explosion">💥</div>
+            `;
+            
+            // Get DOM elements
+            const wordDisplay = document.getElementById("word-display");
+            const inputField = document.getElementById("input-field");
+            const timerBar = document.getElementById("timer-bar");
+            const streakDisplay = document.getElementById("streak");
+            const highScoreDisplay = document.getElementById("high-score");
+            const gameControlBtn = document.getElementById("game-control-btn");
+            const backBtn = document.getElementById("back-to-menu");
+            const explosion = document.getElementById("explosion");
+            const difficultyBtns = document.querySelectorAll(".difficulty-btn");
+            const gameOverMessage = document.getElementById("game-over-message");
+            const finalStreakDisplay = document.getElementById("final-streak");
+            const playAgainBtn = document.getElementById("play-again-btn");
+            
+            // Set up event listeners
+            gameControlBtn.addEventListener("click", toggleGame);
+            backBtn.addEventListener("click", goBackToMenu);
+            inputField.addEventListener("input", checkInput);
+            playAgainBtn.addEventListener("click", playAgain);
+            
+            difficultyBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    difficulty = btn.dataset.difficulty;
+                    difficultyBtns.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                });
+            });
+            
+            function toggleGame() {
+                if (gameActive) {
+                    endGame();
+                } else {
+                    startGamePlay();
+                }
+            }
+            
+            function startGamePlay() {
+                gameActive = true;
+                streak = 0;
+                streakDisplay.textContent = streak;
+                gameControlBtn.textContent = "END GAME";
+                inputField.disabled = false;
+                inputField.value = "";
+                inputField.focus();
+                gameOverMessage.style.display = "none";
+                nextWord();
+            }
+            
+            function endGame() {
+                gameOver();
+            }
+            
+            function nextWord() {
+                if (!gameActive) return;
+                
+                const words = config[difficulty].words;
+                currentWord = words[Math.floor(Math.random() * words.length)];
+                wordDisplay.textContent = currentWord;
+                
+                timeLeft = config[difficulty].time;
+                updateTimer();
+                
+                clearInterval(timer);
+                timer = setInterval(() => {
+                    timeLeft -= 0.1;
+                    updateTimer();
+                    
+                    if (timeLeft <= 0) {
+                        gameOver();
+                    }
+                }, 100);
+            }
+            
+            function updateTimer() {
+                const percent = (timeLeft / config[difficulty].time) * 100;
+                timerBar.style.width = `${percent}%`;
+                
+                // Change color based on time left
+                if (percent > 50) {
+                    timerBar.style.backgroundColor = "#4ECDC4";
+                } else if (percent > 25) {
+                    timerBar.style.backgroundColor = "#FFE66D";
+                } else {
+                    timerBar.style.backgroundColor = "#FF6B6B";
+                }
+            }
+            
+            function checkInput() {
+                if (!gameActive) return;
+                
+                if (inputField.value.toUpperCase() === currentWord.toUpperCase()) {
+                    // Correct!
+                    clearInterval(timer);
+                    streak++;
+                    streakDisplay.textContent = streak;
+                    inputField.value = "";
+                    nextWord();
+                } else if (inputField.value.length >= currentWord.length) {
+                    // Wrong input (typed too many characters or wrong word)
+                    gameOver();
+                }
+            }
+            
+            function gameOver() {
+                gameActive = false;
+                clearInterval(timer);
+                
+                // Show explosion animation
+                explosion.style.opacity = "1";
+                explosion.style.transform = "translate(-50%, -50%) scale(1)";
+                explosion.style.transition = "all 0.3s";
+                
+                // Show game over message
+                finalStreakDisplay.textContent = streak;
+                gameOverMessage.style.display = "block";
+                
+                // Update high score if needed
+                if (streak > highScore) {
+                    highScore = streak;
+                    localStorage.setItem('highScore', highScore);
+                    highScoreDisplay.textContent = highScore;
+                }
+                
+                // Reset game state
+                streak = 0;
+                streakDisplay.textContent = streak;
+                inputField.disabled = true;
+                gameControlBtn.textContent = "START GAME";
+                
+                // Hide explosion after animation
+                setTimeout(() => {
+                    explosion.style.opacity = "0";
+                    explosion.style.transform = "translate(-50%, -50%) scale(0.5)";
+                }, 500);
+            }
+            
+            function playAgain() {
+                gameOverMessage.style.display = "none";
+                startGamePlay();
+            }
+            
+            function goBackToMenu() {
+                // Show intro page
+                document.getElementById('intro-page').style.opacity = '1';
+                document.getElementById('intro-page').style.pointerEvents = 'all';
+                
+                // Hide game page
+                document.getElementById('game-page').style.opacity = '0';
+                document.getElementById('game-page').style.pointerEvents = 'none';
+                
+                // Hide game over message if visible
+                gameOverMessage.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
